@@ -12,7 +12,6 @@ Plugin 'tomtom/tlib_vim'
 Plugin 'MarcWeber/vim-addon-mw-utils'
 
 Plugin 'scrooloose/nerdtree'
-Plugin 'YanhaoYang/vim-colors'
 Plugin 'Yggdroot/indentLine'
 
 Plugin 'kien/ctrlp.vim'
@@ -40,22 +39,27 @@ let g:pymode_python = 'python3'
 
 Plugin 'elzr/vim-json'
 
+Plugin 'YanhaoYang/neodark.vim'
+
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
 filetype plugin indent on    " required
+
+set encoding=utf-8
+set t_Co=256
+
+let g:neodark#use_256color = 1
+let g:neodark#terminal_transparent = 1
+colorscheme neodark
 
 " Source support_function.vim to support snipmate-snippets.
 if filereadable(expand("~/.vim/bundle/snipmate-snippets/snippets/support_functions.vim"))
   source ~/.vim/bundle/snipmate-snippets/snippets/support_functions.vim
 endif
 
-set encoding=utf-8
-
 filetype on
 filetype plugin indent on   " Automatically detect file types.
 syntax on                   " syntax highlighting
-
-colorscheme desert
 
 "The default leader is '\', but many people prefer ',' as it's in a standard
 "location
@@ -181,8 +185,6 @@ let g:indent_guides_start_level = 2
 let g:indent_guides_guide_size = 1
 let g:indent_guides_enable_on_vim_startup = 1
 " }
-
-set t_Co=256                 " Enable 256 colors to stop the CSApprox warning and make xterm vim shine
 
 function! InitializeDirectories()
   let separator = "."
