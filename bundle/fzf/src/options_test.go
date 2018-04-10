@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/junegunn/fzf/src/tui"
-	"github.com/junegunn/fzf/src/util"
 )
 
 func TestDelimiterRegex(t *testing.T) {
@@ -44,20 +43,20 @@ func TestDelimiterRegex(t *testing.T) {
 
 func TestDelimiterRegexString(t *testing.T) {
 	delim := delimiterRegexp("*")
-	tokens := Tokenize(util.RunesToChars([]rune("-*--*---**---")), delim)
+	tokens := Tokenize("-*--*---**---", delim)
 	if delim.regex != nil ||
 		tokens[0].text.ToString() != "-*" ||
 		tokens[1].text.ToString() != "--*" ||
 		tokens[2].text.ToString() != "---*" ||
 		tokens[3].text.ToString() != "*" ||
 		tokens[4].text.ToString() != "---" {
-		t.Errorf("%s %s %d", delim, tokens, len(tokens))
+		t.Errorf("%s %v %d", delim, tokens, len(tokens))
 	}
 }
 
 func TestDelimiterRegexRegex(t *testing.T) {
 	delim := delimiterRegexp("--\\*")
-	tokens := Tokenize(util.RunesToChars([]rune("-*--*---**---")), delim)
+	tokens := Tokenize("-*--*---**---", delim)
 	if delim.str != nil ||
 		tokens[0].text.ToString() != "-*--*" ||
 		tokens[1].text.ToString() != "---*" ||
@@ -72,7 +71,7 @@ func TestSplitNth(t *testing.T) {
 		if len(ranges) != 1 ||
 			ranges[0].begin != rangeEllipsis ||
 			ranges[0].end != rangeEllipsis {
-			t.Errorf("%s", ranges)
+			t.Errorf("%v", ranges)
 		}
 	}
 	{
@@ -88,7 +87,7 @@ func TestSplitNth(t *testing.T) {
 			ranges[7].begin != -2 || ranges[7].end != -2 ||
 			ranges[8].begin != 2 || ranges[8].end != -2 ||
 			ranges[9].begin != rangeEllipsis || ranges[9].end != rangeEllipsis {
-			t.Errorf("%s", ranges)
+			t.Errorf("%v", ranges)
 		}
 	}
 }
@@ -100,7 +99,7 @@ func TestIrrelevantNth(t *testing.T) {
 		parseOptions(opts, words)
 		postProcessOptions(opts)
 		if len(opts.Nth) != 0 {
-			t.Errorf("nth should be empty: %s", opts.Nth)
+			t.Errorf("nth should be empty: %v", opts.Nth)
 		}
 	}
 	for _, words := range [][]string{[]string{"--nth", "..,3", "+x"}, []string{"--nth", "3,1..", "+x"}, []string{"--nth", "..-1,1", "+x"}} {
@@ -109,7 +108,7 @@ func TestIrrelevantNth(t *testing.T) {
 			parseOptions(opts, words)
 			postProcessOptions(opts)
 			if len(opts.Nth) != 0 {
-				t.Errorf("nth should be empty: %s", opts.Nth)
+				t.Errorf("nth should be empty: %v", opts.Nth)
 			}
 		}
 		{
@@ -118,7 +117,7 @@ func TestIrrelevantNth(t *testing.T) {
 			parseOptions(opts, words)
 			postProcessOptions(opts)
 			if len(opts.Nth) != 2 {
-				t.Errorf("nth should not be empty: %s", opts.Nth)
+				t.Errorf("nth should not be empty: %v", opts.Nth)
 			}
 		}
 	}
@@ -413,5 +412,12 @@ func TestPreviewOpts(t *testing.T) {
 		opts.Preview.size.percent == false &&
 		opts.Preview.size.size == 15+2) {
 		t.Error(opts.Preview)
+	}
+}
+
+func TestAdditiveExpect(t *testing.T) {
+	opts := optsFor("--expect=a", "--expect", "b", "--expect=c")
+	if len(opts.Expect) != 3 {
+		t.Error(opts.Expect)
 	}
 }

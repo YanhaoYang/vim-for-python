@@ -426,10 +426,18 @@ func parseKeyChords(str string, message string) map[int]string {
 			chord = tui.PgUp
 		case "pgdn", "page-down":
 			chord = tui.PgDn
+		case "shift-up":
+			chord = tui.SUp
+		case "shift-down":
+			chord = tui.SDown
 		case "shift-left":
 			chord = tui.SLeft
 		case "shift-right":
 			chord = tui.SRight
+		case "left-click":
+			chord = tui.LeftClick
+		case "right-click":
+			chord = tui.RightClick
 		case "double-click":
 			chord = tui.DoubleClick
 		case "f10":
@@ -658,8 +666,12 @@ func parseKeymap(keymap map[int][]action, str string) {
 				appendAction(actAbort)
 			case "accept":
 				appendAction(actAccept)
+			case "accept-non-empty":
+				appendAction(actAcceptNonEmpty)
 			case "print-query":
 				appendAction(actPrintQuery)
+			case "replace-query":
+				appendAction(actReplaceQuery)
 			case "backward-char":
 				appendAction(actBackwardChar)
 			case "backward-delete-char":
@@ -833,9 +845,6 @@ func parseSize(str string, maxPercent float64, label string) sizeSpec {
 }
 
 func parseHeight(str string) sizeSpec {
-	if util.IsWindows() {
-		errorExit("--height options is currently not supported on Windows")
-	}
 	size := parseSize(str, 100, "height")
 	return size
 }
@@ -962,7 +971,11 @@ func parseOptions(opts *Options, allArgs []string) {
 		case "--algo":
 			opts.FuzzyAlgo = parseAlgo(nextString(allArgs, &i, "algorithm required (v1|v2)"))
 		case "--expect":
-			opts.Expect = parseKeyChords(nextString(allArgs, &i, "key names required"), "key names required")
+			for k, v := range parseKeyChords(nextString(allArgs, &i, "key names required"), "key names required") {
+				opts.Expect[k] = v
+			}
+		case "--no-expect":
+			opts.Expect = make(map[int]string)
 		case "--tiebreak":
 			opts.Criteria = parseTiebreak(nextString(allArgs, &i, "sort criterion required"))
 		case "--bind":
@@ -1138,7 +1151,9 @@ func parseOptions(opts *Options, allArgs []string) {
 			} else if match, value := optString(arg, "--toggle-sort="); match {
 				parseToggleSort(opts.Keymap, value)
 			} else if match, value := optString(arg, "--expect="); match {
-				opts.Expect = parseKeyChords(value, "key names required")
+				for k, v := range parseKeyChords(value, "key names required") {
+					opts.Expect[k] = v
+				}
 			} else if match, value := optString(arg, "--tiebreak="); match {
 				opts.Criteria = parseTiebreak(value)
 			} else if match, value := optString(arg, "--color="); match {
@@ -1197,6 +1212,9 @@ func parseOptions(opts *Options, allArgs []string) {
 }
 
 func postProcessOptions(opts *Options) {
+	if util.IsWindows() && opts.Height.size > 0 {
+		errorExit("--height option is currently not supported on Windows")
+	}
 	// Default actions for CTRL-N / CTRL-P when --history is set
 	if opts.History != nil {
 		if _, prs := opts.Keymap[tui.CtrlP]; !prs {

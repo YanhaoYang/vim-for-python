@@ -1,6 +1,73 @@
 CHANGELOG
 =========
 
+0.17.3
+------
+- `$LINES` and `$COLUMNS` are exported to preview command so that the command
+  knows the exact size of the preview window.
+- Better error messages when the default command or `$FZF_DEFAULT_COMMAND`
+  fails.
+- Reverted #1061 to avoid having duplicate entries in the list when find
+  command detected a file system loop (#1120). The default command now
+  requires that find supports `-fstype` option.
+- fzf now distinguishes mouse left click and right click (#1130)
+    - Right click is now bound to `toggle` action by default
+    - `--bind` understands `left-click` and `right-click`
+- Added `replace-query` action (#1137)
+    - Replaces query string with the current selection
+- Added `accept-non-empty` action (#1162)
+    - Same as accept, except that it prevents fzf from exiting without any
+      selection
+
+0.17.1
+------
+
+- Fixed custom background color of preview window (#1046)
+- Fixed background color issues of Windows binary
+- Fixed Windows binary to execute command using cmd.exe with no parsing and
+  escaping (#1072)
+- Added support for `window` layout on Vim 8 using Vim 8 terminal (#1055)
+
+0.17.0-2
+--------
+
+A maintenance release for auxiliary scripts. fzf binaries are not updated.
+
+- Experimental support for the builtin terminal of Vim 8
+    - fzf can now run inside GVim
+- Updated Vim plugin to better handle `&shell` issue on fish
+- Fixed a bug of fzf-tmux where invalid output is generated
+- Fixed fzf-tmux to work even when `tput` does not work
+
+0.17.0
+------
+- Performance optimization
+- One can match literal spaces in extended-search mode with a space prepended
+  by a backslash.
+- `--expect` is now additive and can be specified multiple times.
+
+0.16.11
+-------
+- Performance optimization
+- Fixed missing preview update
+
+0.16.10
+-------
+- Fixed invalid handling of ANSI colors in preview window
+- Further improved `--ansi` performance
+
+0.16.9
+------
+- Memory and performance optimization
+    - Around 20% performance improvement for general use cases
+    - Up to 5x faster processing of `--ansi`
+    - Up to 50% reduction of memory usage
+- Bug fixes and usability improvements
+    - Fixed handling of bracketed paste mode
+    - [ERROR] on info line when the default command failed
+    - More efficient rendering of preview window
+    - `--no-clear` updated for repetitive relaunching scenarios
+
 0.16.8
 ------
 - New `change` event and `top` action for `--bind`

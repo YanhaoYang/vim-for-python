@@ -164,11 +164,11 @@ func (w *TcellWindow) X() int {
 	return w.lastX
 }
 
-func (r *FullscreenRenderer) DoesAutoWrap() bool {
-	return false
+func (w *TcellWindow) Y() int {
+	return w.lastY
 }
 
-func (r *FullscreenRenderer) IsOptimized() bool {
+func (r *FullscreenRenderer) DoesAutoWrap() bool {
 	return false
 }
 
@@ -193,19 +193,22 @@ func (r *FullscreenRenderer) GetChar() Event {
 		button := ev.Buttons()
 		mod := ev.Modifiers() != 0
 		if button&tcell.WheelDown != 0 {
-			return Event{Mouse, 0, &MouseEvent{y, x, -1, false, false, mod}}
+			return Event{Mouse, 0, &MouseEvent{y, x, -1, false, false, false, mod}}
 		} else if button&tcell.WheelUp != 0 {
-			return Event{Mouse, 0, &MouseEvent{y, x, +1, false, false, mod}}
+			return Event{Mouse, 0, &MouseEvent{y, x, +1, false, false, false, mod}}
 		} else if runtime.GOOS != "windows" {
 			// double and single taps on Windows don't quite work due to
 			// the console acting on the events and not allowing us
 			// to consume them.
 
-			down := button&tcell.Button1 != 0 // left
+			left := button&tcell.Button1 != 0
+			down := left || button&tcell.Button3 != 0
 			double := false
 			if down {
 				now := time.Now()
-				if now.Sub(r.prevDownTime) < doubleClickDuration {
+				if !left {
+					r.clickY = []int{}
+				} else if now.Sub(r.prevDownTime) < doubleClickDuration {
 					r.clickY = append(r.clickY, x)
 				} else {
 					r.clickY = []int{x}
@@ -218,7 +221,7 @@ func (r *FullscreenRenderer) GetChar() Event {
 				}
 			}
 
-			return Event{Mouse, 0, &MouseEvent{y, x, 0, down, double, mod}}
+			return Event{Mouse, 0, &MouseEvent{y, x, 0, left, down, double, mod}}
 		}
 
 		// process keyboard:
@@ -405,14 +408,13 @@ func (w *TcellWindow) Close() {
 func fill(x, y, w, h int, r rune) {
 	for ly := 0; ly <= h; ly++ {
 		for lx := 0; lx <= w; lx++ {
-			_screen.SetContent(x+lx, y+ly, r, nil, ColDefault.style())
+			_screen.SetContent(x+lx, y+ly, r, nil, ColNormal.style())
 		}
 	}
 }
 
 func (w *TcellWindow) Erase() {
-	// TODO
-	fill(w.left, w.top, w.width, w.height, ' ')
+	fill(w.left-1, w.top, w.width+1, w.height, ' ')
 }
 
 func (w *TcellWindow) Enclose(y int, x int) bool {
@@ -429,13 +431,13 @@ func (w *TcellWindow) Move(y int, x int) {
 func (w *TcellWindow) MoveAndClear(y int, x int) {
 	w.Move(y, x)
 	for i := w.lastX; i < w.width; i++ {
-		_screen.SetContent(i+w.left, w.lastY+w.top, rune(' '), nil, ColDefault.style())
+		_screen.SetContent(i+w.left, w.lastY+w.top, rune(' '), nil, ColNormal.style())
 	}
 	w.lastX = x
 }
 
 func (w *TcellWindow) Print(text string) {
-	w.printString(text, ColDefault, 0)
+	w.printString(text, ColNormal, 0)
 }
 
 func (w *TcellWindow) printString(text string, pair ColorPair, a Attr) {
@@ -448,7 +450,7 @@ func (w *TcellWindow) printString(text string, pair ColorPair, a Attr) {
 			Reverse(a&Attr(tcell.AttrReverse) != 0).
 			Underline(a&Attr(tcell.AttrUnderline) != 0)
 	} else {
-		style = ColDefault.style().
+		style = ColNormal.style().
 			Reverse(a&Attr(tcell.AttrReverse) != 0 || pair == ColCurrent || pair == ColCurrentMatch).
 			Underline(a&Attr(tcell.AttrUnderline) != 0 || pair == ColMatch || pair == ColCurrentMatch)
 	}
@@ -499,7 +501,7 @@ func (w *TcellWindow) fillString(text string, pair ColorPair, a Attr) FillReturn
 	if w.color {
 		style = pair.style()
 	} else {
-		style = ColDefault.style()
+		style = ColNormal.style()
 	}
 	style = style.
 		Blink(a&Attr(tcell.AttrBlink) != 0).
@@ -539,11 +541,17 @@ func (w *TcellWindow) fillString(text string, pair ColorPair, a Attr) FillReturn
 }
 
 func (w *TcellWindow) Fill(str string) FillReturn {
-	return w.fillString(str, ColDefault, 0)
+	return w.fillString(str, ColNormal, 0)
 }
 
 func (w *TcellWindow) CFill(fg Color, bg Color, a Attr, str string) FillReturn {
-	return w.fillString(str, ColorPair{fg, bg, -1}, a)
+	if fg == colDefault {
+		fg = ColNormal.Fg()
+	}
+	if bg == colDefault {
+		bg = ColNormal.Bg()
+	}
+	return w.fillString(str, NewColorPair(fg, bg), a)
 }
 
 func (w *TcellWindow) drawBorder(around bool) {
@@ -556,7 +564,7 @@ func (w *TcellWindow) drawBorder(around bool) {
 	if w.color {
 		style = ColBorder.style()
 	} else {
-		style = ColDefault.style()
+		style = ColNormal.style()
 	}
 
 	for x := left; x < right; x++ {
