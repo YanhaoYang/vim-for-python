@@ -1,4 +1,4 @@
-source ./plugins
+source ~/.vim/plugins
 
 let g:vim_json_syntax_conceal = 0
 
