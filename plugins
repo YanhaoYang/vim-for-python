@@ -31,11 +31,11 @@ Plugin 'godlygeek/tabular'
 Plugin 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plugin 'junegunn/fzf.vim'
 
-Plugin 'klen/python-mode'
+Plugin 'python-mode/python-mode'
 
 Plugin 'elzr/vim-json'
 
-Plugin 'YanhaoYang/neodark.vim'
+Plugin 'junegunn/seoul256.vim'
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required

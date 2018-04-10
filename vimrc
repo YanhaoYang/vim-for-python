@@ -2,15 +2,13 @@ source ~/.vim/plugins
 
 let g:vim_json_syntax_conceal = 0
 
-let g:pymode_folding = 0
+let g:pymode_folding = 1
 let g:pymode_python = 'python3'
+let g:pymode_lint_ignore = "W191"
+autocmd FileType python :set noexpandtab
 
 set encoding=utf-8
 set t_Co=256
-
-let g:neodark#use_256color = 1
-let g:neodark#terminal_transparent = 1
-colorscheme neodark
 
 " Source support_function.vim to support snipmate-snippets.
 if filereadable(expand("~/.vim/bundle/snipmate-snippets/snippets/support_functions.vim"))
@@ -20,6 +18,9 @@ endif
 filetype on
 filetype plugin indent on   " Automatically detect file types.
 syntax on                   " syntax highlighting
+
+let g:seoul256_background = 233
+colo seoul256
 
 "The default leader is '\', but many people prefer ',' as it's in a standard
 "location
