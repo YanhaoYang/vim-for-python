@@ -289,7 +289,7 @@ call s:hi('Folded', [101, 101], [s:dark_bg + 1, s:light_bg - 2])
 " set foldcolumn=1
 call s:hi('FoldColumn', [144, 94], [s:dark_bg + 1, s:light_bg - 2])
 
-call s:hi('MatchParen', ['', ''], [s:dark_bg + 3, s:light_bg - 3])
+call s:hi('MatchParen', ['', ''], [s:dark_bg + 10, s:light_bg - 10])
 
 " -- INSERT --
 call s:hi('ModeMsg', [173, 173], ['', ''])
@@ -406,7 +406,7 @@ call s:hi('SignifySignChange', [68, 68], [s:dark_bg + 1, s:light_bg - 2])
 call s:hi('SignifySignDelete', [161, 161], [s:dark_bg + 1, s:light_bg - 2])
 
 
-" http://vim.wikia.com/wiki/Highlight_unwanted_spaces     
+" http://vim.wikia.com/wiki/Highlight_unwanted_spaces
 " ---------------------------------------------------^^^^^
 call s:hi('ExtraWhitespace', ['', ''], [s:dark_bg - 1, s:light_bg - 2])
 
