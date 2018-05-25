@@ -79,7 +79,7 @@ set foldmethod=indent
 set foldcolumn=2
 set foldlevel=1
 set list
-set listchars=tab:\ \ ,trail:.,extends:#,nbsp:. " Highlight problematic whitespace
+set listchars=tab:\|\ ,trail:.,extends:#,nbsp:. " Highlight problematic whitespace
 
 set wildmenu                    " show list instead of just completing
 set wildmode=list:longest,full  " command <Tab> completion, list matches, then longest common part, then all.
